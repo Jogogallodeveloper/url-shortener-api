@@ -4,6 +4,6 @@ import { ShortenerController } from './shortener.controller';
 
 @Module({
   providers: [ShortenerService],
-  controllers: [ShortenerController]
+  controllers: [ShortenerController],
 })
 export class ShortenerModule {}
