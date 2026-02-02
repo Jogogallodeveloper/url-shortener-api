@@ -7,19 +7,32 @@ type StoredUrl = {
 
 @Injectable()
 export class ShortenerService {
-  // In-memory storage: code -> StoredUrl
   private readonly urlStore = new Map<string, StoredUrl>();
 
-  // Save a URL into memory
-  saveUrl(code: string, originalUrl: string): void {
+  createShortUrl(originalUrl: string): string {
+    const code = this.generateCode();
+
     this.urlStore.set(code, {
       originalUrl,
       createdAt: new Date(),
     });
+
+    return code;
   }
 
-  // Retrieve a URL from memory
   getUrl(code: string): StoredUrl | undefined {
     return this.urlStore.get(code);
+  }
+
+  private generateCode(length = 6): string {
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+
+    return result;
   }
 }
