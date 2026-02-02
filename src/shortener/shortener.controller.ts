@@ -5,6 +5,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Redirect,
 } from '@nestjs/common';
 import { ShortenerService } from './shortener.service';
 import { ConfigService } from '@nestjs/config';
@@ -29,13 +30,14 @@ export class ShortenerController {
   }
 
   @Get(':code')
-  redirect(@Param('code') code: string) {
+  @Redirect(undefined, 302)
+  redirectToOriginal(@Param('code') code: string) {
     const data = this.shortenerService.getUrl(code);
 
     if (!data) {
       throw new NotFoundException('Short URL not found');
     }
 
-    return data;
+    return { url: data.originalUrl };
   }
 }
