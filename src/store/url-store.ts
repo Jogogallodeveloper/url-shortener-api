@@ -1,13 +1,7 @@
-export type StoredUrl = {
-  code: string;
-  originalUrl: string;
-  createdAt: Date;
-  visitCount: number;
-};
+import { StoredUrl } from 'src/type/stored.type';
 
-// Injection token for Nest DI
-export const URL_STORE = Symbol('URL_STORE');
-
+// Nest DI token (interfaces don't exist at runtime).
+export const URL_STORE = 'URL_STORE' as const;
 export interface UrlStore {
   create(input: { code: string; originalUrl: string }): Promise<StoredUrl>;
   findByCode(code: string): Promise<StoredUrl | null>;
