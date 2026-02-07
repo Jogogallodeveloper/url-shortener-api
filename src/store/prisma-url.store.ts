@@ -1,5 +1,9 @@
-import { StoredUrl, UrlStore } from './url-store';
+import { Injectable } from '@nestjs/common';
+import { UrlStore } from './url-store';
+import { StoredUrl } from 'src/type/stored.type';
+import { PrismaService } from 'src/prisma/prisma.service';
 
+@Injectable()
 export class PrismaUrlStore implements UrlStore {
   constructor(private readonly prisma: PrismaService) {}
 

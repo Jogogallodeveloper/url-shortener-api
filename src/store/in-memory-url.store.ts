@@ -1,12 +1,12 @@
-import { UrlStore, StoredUrl } from './url-store';
+import { Injectable } from '@nestjs/common';
+import { UrlStore } from './url-store';
+import { StoredUrl } from 'src/type/stored.type';
 
+@Injectable()
 export class InMemoryUrlStore implements UrlStore {
   private readonly store = new Map<string, StoredUrl>();
 
-  async create(input: {
-    code: string;
-    originalUrl: string;
-  }): Promise<StoredUrl> {
+  create(input: { code: string; originalUrl: string }): Promise<StoredUrl> {
     const record: StoredUrl = {
       code: input.code,
       originalUrl: input.originalUrl,
@@ -15,20 +15,22 @@ export class InMemoryUrlStore implements UrlStore {
     };
 
     this.store.set(input.code, record);
-    return record;
+    return Promise.resolve(record);
   }
 
-  async findByCode(code: string): Promise<StoredUrl | null> {
-    return this.store.get(code) ?? null;
+  findByCode(code: string): Promise<StoredUrl | null> {
+    return Promise.resolve(this.store.get(code) ?? null);
   }
 
-  async incrementVisitCount(code: string): Promise<void> {
+  incrementVisitCount(code: string): Promise<void> {
     const current = this.store.get(code);
-    if (!current) return;
+    if (!current) return Promise.resolve();
 
     this.store.set(code, {
       ...current,
       visitCount: current.visitCount + 1,
     });
+
+    return Promise.resolve();
   }
 }

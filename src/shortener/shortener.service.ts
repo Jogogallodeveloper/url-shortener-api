@@ -1,44 +1,40 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
-
-type StoredUrl = {
-  originalUrl: string;
-  createdAt: Date;
-};
+import { URL_STORE, UrlStore } from 'src/store/url-store';
 
 @Injectable()
 export class ShortenerService {
-  private readonly urlStore = new Map<string, StoredUrl>();
-
-  // URL-safe alphabet (no confusing chars, no symbols that break URLs)
   private readonly generateCode = customAlphabet(
     '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
     6,
   );
 
-  createShortUrl(originalUrl: string): string {
-    const code = this.generateUniqueCode();
+  constructor(@Inject(URL_STORE) private readonly urlStore: UrlStore) {}
 
-    this.urlStore.set(code, {
-      originalUrl,
-      createdAt: new Date(),
-    });
-
+  async createShortUrl(originalUrl: string): Promise<string> {
+    const code = await this.generateUniqueCode();
+    await this.urlStore.create({ code, originalUrl });
     return code;
   }
 
-  getUrl(code: string): StoredUrl | undefined {
-    return this.urlStore.get(code);
+  async findByCode(code: string) {
+    return this.urlStore.findByCode(code);
   }
 
-  private generateUniqueCode(maxAttempts = 5): string {
-    // In-memory collision prevention.
-    // If collision happens repeatedly, we fail fast instead of looping forever.
+  async registerVisit(code: string): Promise<void> {
+    await this.urlStore.incrementVisitCount(code);
+  }
+
+  private async generateUniqueCode(maxAttempts = 5): Promise<string> {
     for (let attempt = 0; attempt < maxAttempts; attempt++) {
       const code = this.generateCode();
-      if (!this.urlStore.has(code)) {
-        return code;
-      }
+      const exists = await this.urlStore.findByCode(code);
+
+      if (!exists) return code;
     }
 
     throw new InternalServerErrorException(
