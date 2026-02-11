@@ -1,52 +1,41 @@
-import { Injectable } from '@nestjs/common';
-import { UrlStore } from './url-store';
-import { StoredUrl } from 'src/type/stored.type';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UrlStore, type StoredUrl } from './url-store';
 
-@Injectable()
-export class PrismaUrlStore implements UrlStore {
-  constructor(private readonly prisma: PrismaService) {}
-
-  async create(input: {
-    code: string;
-    originalUrl: string;
-  }): Promise<StoredUrl> {
-    const created = await this.prisma.short_urls.create({
-      data: {
-        code: input.code,
-        originalUrl: input.originalUrl,
-      },
-    });
-
-    return {
-      code: created.code,
-      originalUrl: created.originalUrl,
-      createdAt: created.createdAt,
-      visitCount: created.visitCount,
-    };
+export class PrismaUrlStore extends UrlStore {
+  constructor(private readonly prisma: PrismaService) {
+    super();
   }
 
-  async findByCode(code: string): Promise<StoredUrl | null> {
-    const found = await this.prisma.short_urls.findUnique({
+  override async save(url: StoredUrl): Promise<void> {
+    await this.prisma.shortUrl.create({
+      data: {
+        code: url.code,
+        originalUrl: url.originalUrl,
+        createdAt: url.createdAt,
+        visitCount: url.visitCount,
+      },
+    });
+  }
+
+  override async findByCode(code: string): Promise<StoredUrl | null> {
+    const row = await this.prisma.short_urls.findUnique({
       where: { code },
     });
 
-    if (!found) return null;
+    if (!row) return null;
 
     return {
-      code: found.code,
-      originalUrl: found.originalUrl,
-      createdAt: found.createdAt,
-      visitCount: found.visitCount,
+      code: row.code,
+      originalUrl: row.originalUrl,
+      createdAt: row.createdAt,
+      visitCount: row.visitCount,
     };
   }
 
-  async incrementVisitCount(code: string): Promise<void> {
+  override async incrementVisitCount(code: string): Promise<void> {
     await this.prisma.short_urls.update({
       where: { code },
-      data: {
-        visitCount: { increment: 1 },
-      },
+      data: { visitCount: { increment: 1 } },
     });
   }
 }
