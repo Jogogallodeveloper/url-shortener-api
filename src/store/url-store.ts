@@ -1,9 +1,16 @@
-import { StoredUrl } from 'src/type/stored.type';
+export type StoredUrl = {
+  code: string;
+  originalUrl: string;
+  createdAt: Date;
+  visitCount: number;
+};
 
-// Nest DI token (interfaces don't exist at runtime).
-export const URL_STORE = 'URL_STORE' as const;
-export interface UrlStore {
-  create(input: { code: string; originalUrl: string }): Promise<StoredUrl>;
-  findByCode(code: string): Promise<StoredUrl | null>;
-  incrementVisitCount(code: string): Promise<void>;
+// This is the "Port" (contract) in Clean Architecture.
+// Using an abstract class makes it a runtime token for Nest DI.
+export abstract class UrlStore {
+  abstract save(url: StoredUrl): Promise<void>;
+
+  abstract findByCode(code: string): Promise<StoredUrl | null>;
+
+  abstract incrementVisitCount(code: string): Promise<void>;
 }
