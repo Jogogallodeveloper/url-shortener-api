@@ -1,5 +1,8 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["src/**/*.ts", "prisma/**/*.ts", "*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.cjs", "**/*.js"]
+  "include": ["src/**/*.ts", "test/**/*.ts", "prisma/**/*.ts", "*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.cjs", "**/*.js"],
+  "compilerOptions": {
+    "types": ["node", "jest"]
+  }
 }

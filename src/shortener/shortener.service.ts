@@ -4,7 +4,6 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { customAlphabet } from 'nanoid';
-import { URL_STORE, UrlStore } from 'src/store/url-store';
 
 @Injectable()
 export class ShortenerService {
@@ -13,7 +12,9 @@ export class ShortenerService {
     6,
   );
 
-  constructor(@Inject(URL_STORE) private readonly urlStore: UrlStore) {}
+  constructor(
+    @Inject(URL_STORE)
+    private readonly urlStore: typeof import("../dto/store-url.dto") {}
 
   async createShortUrl(originalUrl: string): Promise<string> {
     const code = await this.generateUniqueCode();
@@ -42,3 +43,7 @@ export class ShortenerService {
     );
   }
 }
+function findByCode(code: any, string: any) {
+  throw new Error('Function not implemented.');
+}
+
