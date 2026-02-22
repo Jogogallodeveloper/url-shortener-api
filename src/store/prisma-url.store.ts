@@ -7,7 +7,7 @@ export class PrismaUrlStore extends UrlStore {
   }
 
   override async save(url: StoredUrl): Promise<void> {
-    await this.prisma.shortUrl.create({
+    await this.prisma.short_urls.create({
       data: {
         code: url.code,
         originalUrl: url.originalUrl,
@@ -16,10 +16,6 @@ export class PrismaUrlStore extends UrlStore {
       },
     });
   }
-
-  console.log('T');
-
-  console.log('W');
 
   override async findByCode(code: string): Promise<StoredUrl | null> {
     const row = await this.prisma.short_urls.findUnique({
